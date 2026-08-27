@@ -92,7 +92,7 @@ export default function AuthCard({
         return;
       }
 
-      window.location.href = "/";
+      window.location.href = "/dashboard";
     } catch {
       setError("Something went wrong. Please try again.");
       setLoading(false);
