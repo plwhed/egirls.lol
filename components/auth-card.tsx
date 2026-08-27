@@ -24,49 +24,79 @@ export default function AuthCard({
   const [confirm, setConfirm] = useState("");
   const [tos, setTos] = useState(false);
   const [error, setError] = useState("");
-  const [done, setDone] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   function switchMode(next: Mode) {
     if (next === mode) return;
     setMode(next);
     setError("");
-    setDone(false);
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-    setDone(false);
+    setLoading(true);
 
     if (mode === "register") {
       if (!username.trim() || !email.trim() || !password) {
         setError("Please fill in every field.");
+        setLoading(false);
         return;
       }
       if (!/^\S+@\S+\.\S+$/.test(email)) {
         setError("That email doesn't look right.");
+        setLoading(false);
         return;
       }
       if (password.length < 8) {
         setError("Password must be at least 8 characters.");
+        setLoading(false);
         return;
       }
       if (password !== confirm) {
         setError("Passwords don't match.");
+        setLoading(false);
         return;
       }
       if (!tos) {
         setError("Please accept the Terms of Service.");
+        setLoading(false);
         return;
       }
     } else {
       if (!username.trim() || !password) {
         setError("Please enter your username and password.");
+        setLoading(false);
         return;
       }
     }
 
-    setDone(true);
+    try {
+      const endpoint = mode === "register" ? "/api/register" : "/api/login";
+      const body =
+        mode === "register"
+          ? { username, email, password }
+          : { username, password };
+
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Something went wrong.");
+        setLoading(false);
+        return;
+      }
+
+      window.location.href = "/";
+    } catch {
+      setError("Something went wrong. Please try again.");
+      setLoading(false);
+    }
   }
 
   const isRegister = mode === "register";
@@ -107,6 +137,11 @@ export default function AuthCard({
         <h1 className="text-center text-2xl font-semibold leading-tight tracking-tight text-white">
           {isRegister ? "Create your page" : "Welcome back"}
         </h1>
+        <p className="mt-1.5 text-center text-sm text-white/60">
+          {isRegister
+            ? "It only takes a few seconds — no card needed."
+            : "Log in to manage your links."}
+        </p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <div>
@@ -172,45 +207,56 @@ export default function AuthCard({
             </div>
           )}
 
-          {/* {isRegister && (
-                <input
-                  id="register-tos"
-                  type="checkbox"
-                  checked={tos}
-                  onChange={(e) => setTos(e.target.checked)}
-                  className="mt-1 h-4 w-4 shrink-0 accent-green-600"
-                />
-                <label
-                  htmlFor="register-tos"
-                  className="text-sm text-white/60"
+          {isRegister && (
+            <div className="flex items-center gap-3 select-none">
+              <button
+                type="button"
+                role="checkbox"
+                aria-checked={tos}
+                onClick={() => setTos(!tos)}
+                className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border transition-all ${
+                  tos
+                    ? "border-emerald-400 bg-emerald-400"
+                    : "border-white/20 bg-white/5"
+                }`}
+              >
+                <svg
+                  className={`h-3 w-3 text-emerald-950 transition-opacity ${tos ? "opacity-100" : "opacity-0"}`}
+                  viewBox="0 0 12 12"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 >
-                  I agree to the{" "}
-                  <Link
-                    href="/terms"
-                    className="font-medium text-emerald-400 underline hover:text-emerald-300"
-                  >
-                    Terms of Service
-                  </Link>
-                  .
-                </label>
-              </div>
+                  <path d="M2 6l3 3 5-5" />
+                </svg>
+              </button>
+              <span className="text-sm text-white/60">
+                I agree to the{" "}
+                <Link
+                  href="/terms"
+                  className="font-medium text-emerald-400 underline underline-offset-2 hover:text-emerald-300"
+                >
+                  Terms of Service
+                </Link>
+                .
+              </span>
             </div>
-          )} */}
+          )}
 
           {error && <p className="text-sm font-medium text-red-400">{error}</p>}
-          {done && (
-            <p className="text-sm font-medium text-emerald-400">
-              {isRegister
-                ? "Account created! (DB not wired up yet)"
-                : "Logged in! (DB not wired up yet)"}
-            </p>
-          )}
 
           <button
             type="submit"
-            className="w-full rounded-full bg-emerald-400 py-3 text-sm font-semibold text-emerald-950 shadow-lg shadow-emerald-500/25 transition hover:bg-emerald-300 active:scale-[0.99]"
+            disabled={loading}
+            className="w-full rounded-full bg-emerald-400 py-3 text-sm font-semibold text-emerald-950 shadow-lg shadow-emerald-500/25 transition hover:bg-emerald-300 active:scale-[0.99] disabled:opacity-50"
           >
-            {isRegister ? "Create account" : "Log in"}
+            {loading
+              ? "Please wait…"
+              : isRegister
+                ? "Create account"
+                : "Log in"}
           </button>
         </form>
       </div>
