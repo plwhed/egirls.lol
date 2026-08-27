@@ -107,79 +107,70 @@ export default function AuthCard({
         <h1 className="text-center text-2xl font-semibold leading-tight tracking-tight text-white">
           {isRegister ? "Create your page" : "Welcome back"}
         </h1>
-        <p className="mt-1.5 text-center text-sm text-white/60">
-          {isRegister
-            ? "It only takes a few seconds — no card needed."
-            : "Log in to manage your links."}
-        </p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-          <div className={`grid gap-4 ${isRegister ? "sm:grid-cols-2" : ""}`}>
+          <div>
+            <label htmlFor={`${mode}-username`} className={labelClasses}>
+              Username
+            </label>
+            <input
+              id={`${mode}-username`}
+              value={username}
+              onChange={(e) => setUsername(e.target.value.replace(/\s/g, ""))}
+              placeholder="@yourusername"
+              autoComplete="username"
+              className={inputClasses}
+            />
+          </div>
+
+          {isRegister && (
             <div>
-              <label htmlFor={`${mode}-username`} className={labelClasses}>
-                Username
+              <label htmlFor="register-email" className={labelClasses}>
+                Email
               </label>
               <input
-                id={`${mode}-username`}
-                value={username}
-                onChange={(e) => setUsername(e.target.value.replace(/\s/g, ""))}
-                placeholder="@yourusername"
-                autoComplete="username"
+                id="register-email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                autoComplete="email"
                 className={inputClasses}
               />
             </div>
+          )}
 
-            {isRegister && (
-              <div>
-                <label htmlFor="register-email" className={labelClasses}>
-                  Email
-                </label>
-                <input
-                  id="register-email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  autoComplete="email"
-                  className={inputClasses}
-                />
-              </div>
-            )}
+          <div>
+            <label htmlFor={`${mode}-password`} className={labelClasses}>
+              Password
+            </label>
+            <input
+              id={`${mode}-password`}
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              autoComplete={isRegister ? "new-password" : "current-password"}
+              className={inputClasses}
+            />
           </div>
 
-          <div className={`grid gap-4 ${isRegister ? "sm:grid-cols-2" : ""}`}>
+          {isRegister && (
             <div>
-              <label htmlFor={`${mode}-password`} className={labelClasses}>
-                Password
+              <label htmlFor="register-confirm" className={labelClasses}>
+                Confirm password
               </label>
               <input
-                id={`${mode}-password`}
+                id="register-confirm"
                 type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={confirm}
+                onChange={(e) => setConfirm(e.target.value)}
                 placeholder="••••••••"
-                autoComplete={isRegister ? "new-password" : "current-password"}
+                autoComplete="new-password"
                 className={inputClasses}
               />
             </div>
-
-            {isRegister && (
-              <div>
-                <label htmlFor="register-confirm" className={labelClasses}>
-                  Confirm password
-                </label>
-                <input
-                  id="register-confirm"
-                  type="password"
-                  value={confirm}
-                  onChange={(e) => setConfirm(e.target.value)}
-                  placeholder="••••••••"
-                  autoComplete="new-password"
-                  className={inputClasses}
-                />
-              </div>
-            )}
-          </div>
+          )}
 
           {/* {isRegister && (
                 <input

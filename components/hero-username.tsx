@@ -22,9 +22,9 @@ export default function HeroUsernameInput() {
     <div className="mx-auto mt-10 flex w-full max-w-md flex-col items-center gap-2">
       <form
         onSubmit={handleSubmit}
-        className="flex w-full items-center gap-1 rounded-full border border-white/20 bg-white/10 p-1.5 shadow-inner backdrop-blur-md focus-within:border-emerald-300/50 focus-within:ring-4 focus-within:ring-emerald-300/20"
+        className="flex w-full items-center rounded-full border border-white/20 bg-white/10 p-1.5 shadow-inner backdrop-blur-md focus-within:border-emerald-300/50 focus-within:ring-4 focus-within:ring-emerald-300/20"
       >
-        <span className="pl-4 text-emerald-200/70">@</span>
+        <span className="pl-4 text-emerald-200/70">egirls.lol/</span>
         <input
           value={username}
           onChange={(e) => {
