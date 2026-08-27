@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
-import { writeFile, mkdir } from "fs/promises";
+import { writeFile, mkdir, unlink } from "fs/promises";
 import path from "path";
 
 export async function POST(req: Request) {
@@ -25,4 +25,23 @@ export async function POST(req: Request) {
   await writeFile(filepath, buffer);
 
   return NextResponse.json({ url: `/uploads/${filename}` });
+}
+
+export async function DELETE(req: Request) {
+  const session = await getSession();
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+
+  const { url } = await req.json();
+  if (!url || typeof url !== "string") {
+    return NextResponse.json({ error: "Invalid request" }, { status: 400 });
+  }
+
+  if (url.startsWith("/uploads/")) {
+    const filepath = path.join(process.cwd(), "public", url);
+    try {
+      await unlink(filepath);
+    } catch {}
+  }
+
+  return NextResponse.json({ ok: true });
 }

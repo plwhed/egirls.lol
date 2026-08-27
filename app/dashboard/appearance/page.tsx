@@ -23,7 +23,8 @@ export default async function AppearancePage() {
   const links = await db
     .select()
     .from(socialLinks)
-    .where(eq(socialLinks.userId, session.id));
+    .where(eq(socialLinks.userId, session.id))
+    .orderBy(socialLinks.order);
 
   return (
     <LandingBackground>
@@ -32,7 +33,11 @@ export default async function AppearancePage() {
         <main className="ml-72 px-10 py-10">
           <AppearanceClient
             profile={profile ?? null}
-            socialLinks={links.map((l) => ({ platform: l.platform, url: l.url }))}
+            socialLinks={links.map((l) => ({
+              platform: l.platform,
+              url: l.url,
+              order: l.order,
+            }))}
           />
         </main>
       </div>

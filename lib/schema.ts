@@ -63,6 +63,28 @@ export const links = pgTable("links", {
     .defaultNow(),
 });
 
+export const badges = pgTable("badges", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  name: text("name").notNull().unique(),
+  iconPrefix: text("icon_prefix").notNull().default("solid"),
+  iconName: text("icon_name").notNull(),
+  color: text("color").notNull().default("emerald"),
+});
+
+export const userBadges = pgTable("user_badges", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  badgeId: text("badge_id")
+    .notNull()
+    .references(() => badges.id, { onDelete: "cascade" }),
+});
+
 export const pageViews = pgTable(
   "page_views",
   {

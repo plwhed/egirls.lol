@@ -21,7 +21,7 @@ export async function GET() {
   return NextResponse.json({ profile: profile ?? null, socialLinks: links });
 }
 
-async function upsertProfile(userId: string, data: Record<string, string | null>) {
+async function upsertProfile(userId: string, data: Record<string, string | number | null>) {
   const [existing] = await db
     .select({ userId: profiles.userId })
     .from(profiles)
@@ -40,11 +40,14 @@ export async function PUT(req: Request) {
 
   const body = await req.json();
 
-  const profileData: Record<string, string | null> = {};
+  const profileData: Record<string, string | number | null> = {};
   if (body.layout !== undefined) profileData.layout = body.layout;
   if (body.avatarUrl !== undefined) profileData.avatarUrl = body.avatarUrl || null;
   if (body.backgroundUrl !== undefined) profileData.backgroundUrl = body.backgroundUrl || null;
   if (body.cursorUrl !== undefined) profileData.cursorUrl = body.cursorUrl || null;
+  if (body.blur !== undefined) profileData.blur = body.blur;
+  if (body.overlayEnabled !== undefined) profileData.overlayEnabled = body.overlayEnabled ? 1 : 0;
+  if (body.overlayText !== undefined) profileData.overlayText = body.overlayText;
 
   if (Object.keys(profileData).length) {
     await upsertProfile(session.id, profileData);
@@ -54,10 +57,11 @@ export async function PUT(req: Request) {
     await db.delete(socialLinks).where(eq(socialLinks.userId, session.id));
     if (body.socialLinks.length) {
       await db.insert(socialLinks).values(
-        body.socialLinks.map((l: { platform: string; url: string }) => ({
+        body.socialLinks.map((l: { platform: string; url: string; order: number }) => ({
           userId: session.id,
           platform: l.platform,
           url: l.url,
+          order: l.order ?? 0,
         }))
       );
     }
