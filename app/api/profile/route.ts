@@ -14,7 +14,7 @@ export async function GET() {
     .where(eq(profiles.userId, session.id));
 
   const links = await db
-    .select()
+    .select() 
     .from(socialLinks)
     .where(eq(socialLinks.userId, session.id));
 
