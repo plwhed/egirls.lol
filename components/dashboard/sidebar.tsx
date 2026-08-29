@@ -1,6 +1,9 @@
 import React from "react";
 import Link from "next/link";
 import { getSession } from "@/lib/auth";
+import { db } from "@/lib/db";
+import { profiles } from "@/lib/schema";
+import { eq } from "drizzle-orm";
 import LogoutButton from "./logout-button";
 
 const navItems = [
@@ -44,6 +47,15 @@ const iconMap: Record<string, React.ReactNode> = {
 export default async function Sidebar() {
   const session = await getSession();
 
+  let avatarUrl: string | null = null;
+  if (session?.id) {
+    const [profile] = await db
+      .select({ avatarUrl: profiles.avatarUrl })
+      .from(profiles)
+      .where(eq(profiles.userId, session.id));
+    avatarUrl = profile?.avatarUrl ?? null;
+  }
+
   return (
     <aside className="fixed left-5 top-5 bottom-5 z-40 flex w-64 flex-col rounded-[2rem] border border-white/10 bg-black/30 py-4 backdrop-blur-2xl">
       <div className="flex items-center gap-2 border-b border-white/10 px-5 pb-4">
@@ -68,9 +80,13 @@ export default async function Sidebar() {
       <div className="space-y-2 border-t border-white/10 px-3 pt-4">
         <LogoutButton />
         <div className="flex items-center gap-3 px-3 py-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/20 text-sm font-bold text-emerald-400">
-            {session?.username?.[0]?.toUpperCase() ?? "?"}
-          </div>
+          {avatarUrl ? (
+            <img src={avatarUrl} alt="" className="h-8 w-8 rounded-full object-cover ring-1 ring-white/10" />
+          ) : (
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500/20 text-sm font-bold text-emerald-400">
+              {session?.username?.[0]?.toUpperCase() ?? "?"}
+            </div>
+          )}
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-medium text-white">
               {session?.username ?? "—"}

@@ -4,6 +4,8 @@ import { users, links, pageViews, profiles, socialLinks, userBadges, badges } fr
 import { eq, sql } from "drizzle-orm";
 import ProfileOverlay from "@/components/profile-overlay";
 import BadgeIcon from "@/components/badge-icon";
+import TiltCard from "@/components/tilt-card";
+import ParallaxCard, { ParallaxLayer } from "@/components/parallax-card";
 
 export async function generateMetadata(
   props: { params: Promise<{ username: string }> }
@@ -79,6 +81,18 @@ export default async function UserProfilePage(
   const blur = profile?.blur ?? 0;
   const overlayEnabled = !!profile?.overlayEnabled;
   const overlayText = profile?.overlayText ?? "Click to show";
+  const tiltEnabled = !!profile?.tiltEnabled;
+  const tiltMode = profile?.tiltMode ?? "tilt";
+  const borderRadius = profile?.borderRadius ?? 24;
+  const description = profile?.description ?? "";
+  const displayName = profile?.displayName ?? user.username;
+  const cardOpacity = profile?.cardOpacity ?? 100;
+  const borderOpacity = profile?.borderOpacity ?? 100;
+  const cardWidth = profile?.cardWidth ?? 420;
+  const accentColor = profile?.accentColor ?? "white";
+  const badgeColor = profile?.badgeColor ?? "white";
+  const socialColor = profile?.socialColor ?? "white";
+  const linkHoverColor = profile?.linkHoverColor ?? "white";
 
   const profileContent = (
     <div className="relative min-h-screen bg-zinc-950 font-sans text-white">
@@ -97,91 +111,187 @@ export default async function UserProfilePage(
       )}
 
       <div className="relative flex min-h-screen items-center justify-center px-4 py-12">
-        <div
-          className={`w-full max-w-sm rounded-3xl border border-white/10 bg-black/40 px-6 py-8 shadow-2xl shadow-black/50 backdrop-blur-2xl ${
-            isCentered ? "text-center" : ""
-          }`}
-        >
-          <div className={isCentered ? "flex flex-col items-center" : ""}>
-            {profile?.avatarUrl ? (
-              <img
-                src={profile.avatarUrl}
-                alt={user.username}
-                className="h-16 w-16 rounded-full object-cover ring-2 ring-white/10"
-              />
-            ) : (
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/20 text-2xl font-bold text-emerald-400">
-                {user.username[0].toUpperCase()}
-              </div>
-            )}
+        {(() => {
+          const accentColors: Record<string, string> = {
+            emerald: "#10b981",
+            blue: "#3b82f6",
+            purple: "#a855f7",
+            pink: "#ec4899",
+            orange: "#f97316",
+            red: "#ef4444",
+            yellow: "#eab308",
+            cyan: "#06b6d4",
+          };
+          const accent = accentColors[accentColor] ?? "#10b981";
+          const badgeColors: Record<string, string> = {
+            emerald: "#10b981",
+            blue: "#3b82f6",
+            purple: "#a855f7",
+            pink: "#ec4899",
+            orange: "#f97316",
+            red: "#ef4444",
+            yellow: "#eab308",
+            cyan: "#06b6d4",
+          };
+          const badgeAccent = badgeColors[badgeColor] ?? "#10b981";
+          const socialColors: Record<string, string> = {
+            white: "#ffffff",
+            emerald: "#10b981",
+            blue: "#3b82f6",
+            purple: "#a855f7",
+            pink: "#ec4899",
+            orange: "#f97316",
+          };
+          const socialAccent = socialColors[socialColor] ?? "#ffffff";
+          const linkHoverColors: Record<string, string> = {
+            emerald: "#10b981",
+            blue: "#3b82f6",
+            purple: "#a855f7",
+            pink: "#ec4899",
+            orange: "#f97316",
+            red: "#ef4444",
+            yellow: "#eab308",
+            cyan: "#06b6d4",
+          };
+          const linkHoverAccent = linkHoverColors[linkHoverColor] ?? "#10b981";
 
-            <h1 className="mt-3 text-xl font-bold tracking-tight group/uid relative">
-              {user.username}
-              <span className="absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg border border-white/10 bg-zinc-800 px-2.5 py-1 text-[10px] font-medium text-white/50 opacity-0 transition group-hover/uid:opacity-100">
-                {user.id}
-              </span>
-            </h1>
+          const cardBg = `rgba(17, 17, 17, ${cardOpacity / 100})`;
+          const cardBorder = `rgba(255, 255, 255, ${borderOpacity / 100 * 0.1})`;
 
-            {userBadgesList.length > 0 && (
-              <div className={`mt-3 inline-flex flex-wrap items-center justify-center  rounded-full border border-white/10 bg-white/5 px-3 py-1.5 ${isCentered ? "mx-auto" : ""}`}>
-                {userBadgesList.map((b) => (
-                  <span
-                    key={b.id}
-                    className="group/badge relative inline-flex cursor-default items-center justify-center rounded-full ml-0.8 mr-0.8 transition hover:bg-white/15"
-                  >
-                    <BadgeIcon prefix={b.iconPrefix} name={b.iconName} />
-                    <span className="pointer-events-none absolute -top-8 left-1/2 z-10 -translate-x-1/2  whitespace-nowrap rounded-lg border border-white/10 bg-zinc-800 px-2.5 py-1 text-[10px] font-medium text-white/70 opacity-0 shadow-lg transition group-hover/badge:opacity-100">
-                      {b.name}
-                    </span>
-                  </span>
-                ))}
-              </div>
-            )}
-
-            {userSocials.length > 0 && (
-              <div className={`mt-4 flex gap-3 ${isCentered ? "justify-center" : ""}`}>
-                {userSocials.map((s) => (
-                  <a
-                    key={s.id}
-                    href={s.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-white/40 transition hover:text-emerald-400"
-                  >
-                    <svg className="h-5 w-5 fill-current" viewBox="0 0 24 24">
-                      <path d={socialIcons[s.platform] ?? ""} />
-                    </svg>
-                  </a>
-                ))}
-              </div>
-            )}
-          </div>
-
-          <div className="mt-6 space-y-2">
-            {userLinks.map((link) => (
-              <a
-                key={link.id}
-                href={`/api/click?id=${link.id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-white backdrop-blur-sm transition hover:border-emerald-400/30 hover:bg-emerald-400/10 hover:text-emerald-300 ${
-                  isCentered ? "justify-center" : ""
-                }`}
+const card = (
+            <ParallaxLayer depth={0} z={0}>
+              <div
+                className={`w-full px-8 py-10 shadow-2xl shadow-black/50 backdrop-blur-2xl ${isCentered ? "text-center" : ""}`}
+                style={{
+                  borderRadius: `${borderRadius}px`,
+                  backgroundColor: cardBg,
+                  border: `1px solid ${cardBorder}`,
+                  width: `${cardWidth}px`,
+                  maxWidth: "100%",
+                }}
               >
-                <span>{link.title}</span>
-                <svg
-                  className="h-4 w-4 shrink-0 opacity-40"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                >
-                  <path d="M7 17L17 7M17 7H7M17 7v10" />
-                </svg>
-              </a>
-            ))}
-          </div>
-        </div>
+                <ParallaxLayer depth={10} z={40}>
+                  <div className={isCentered ? "flex flex-col items-center" : ""}>
+                    {profile?.avatarUrl ? (
+                      <img
+                        src={profile.avatarUrl}
+                        alt={user.username}
+                        className="h-20 w-20 rounded-full object-cover ring-2 ring-white/10"
+                      />
+                    ) : (
+                      <div className="flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500/20 text-3xl font-bold text-emerald-400">
+                        {displayName[0].toUpperCase()}
+                      </div>
+                    )}
+
+                    <h1 className="mt-4 text-2xl font-bold tracking-tight relative flex items-center gap-2" style={{ display: isCentered ? "flex" : "inline-flex" }}>
+                      {displayName}
+                      {userBadgesList.length > 0 && !isCentered && (
+                        <div className="inline-flex flex-wrap items-center justify-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
+                          {userBadgesList.map((b) => (
+                            <span key={b.id} className="group/badge relative inline-flex cursor-default items-center justify-center rounded-full p-0.5 transition hover:bg-white/10">
+                              <BadgeIcon prefix={b.iconPrefix} name={b.iconName} style={{ color: badgeAccent }} />
+                              <span className="pointer-events-none absolute -top-7 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-lg border border-white/10 bg-zinc-800 px-2 py-0.5 text-[9px] font-medium text-white/70 opacity-0 shadow-lg transition group-hover/badge:opacity-100">
+                                {b.name}
+                              </span>
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      <span className="group/uid inline-block relative">
+                        <span className="absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg border border-white/10 bg-zinc-800 px-2.5 py-1 text-[10px] font-medium text-white/50 opacity-0 transition group-hover/uid:opacity-100">
+                          {user.id}
+                        </span>
+                      </span>
+                    </h1>
+
+                    {userBadgesList.length > 0 && isCentered && (
+                      <div className="mt-2 inline-flex flex-wrap items-center justify-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 mx-auto">
+                        {userBadgesList.map((b) => (
+                          <span key={b.id} className="group/badge relative inline-flex cursor-default items-center justify-center rounded-full p-0.5 transition hover:bg-white/10">
+                            <BadgeIcon prefix={b.iconPrefix} name={b.iconName} style={{ color: badgeAccent }} />
+                            <span className="pointer-events-none absolute -top-7 left-1/2 z-10 -translate-x-1/2 whitespace-nowrap rounded-lg border border-white/10 bg-zinc-800 px-2 py-0.5 text-[9px] font-medium text-white/70 opacity-0 shadow-lg transition group-hover/badge:opacity-100">
+                              {b.name}
+                            </span>
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    {description && (
+                      <p className="mt-4 text-base text-white/60 max-w-lg">{description}</p>
+                    )}
+
+                    {userSocials.length > 0 && (
+                      <div className={`mt-5 flex gap-4 ${isCentered ? "justify-center" : ""}`}>
+                        {userSocials.map((s) => (
+                          <a
+                            key={s.id}
+                            href={s.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="transition hover:opacity-75"
+                            style={{ color: socialAccent }}
+                          >
+                            <svg className="h-6 w-6 fill-current" viewBox="0 0 24 24">
+                              <path d={socialIcons[s.platform] ?? ""} />
+                            </svg>
+                          </a>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </ParallaxLayer>
+
+                <ParallaxLayer depth={5} z={20}>
+                  <div className="mt-8 space-y-3">
+                    {userLinks.map((link) => (
+                      <a
+                        key={link.id}
+                        href={`/api/click?id=${link.id}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`flex items-center gap-4 rounded-xl border border-white/10 bg-white/5 px-5 py-3.5 text-base font-medium text-white backdrop-blur-sm transition ${isCentered ? "justify-center" : ""}`}
+                        style={{
+                          borderColor: `rgba(255,255,255,${borderOpacity / 100 * 0.2})`,
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = `${linkHoverAccent}26`;
+                          e.currentTarget.style.borderColor = `${linkHoverAccent}4D`;
+                          e.currentTarget.style.color = linkHoverAccent;
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = "";
+                          e.currentTarget.style.borderColor = "";
+                          e.currentTarget.style.color = "";
+                        }}
+                      >
+                        <span>{link.title}</span>
+                        <svg
+                          className="h-5 w-5 shrink-0 opacity-40"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                        >
+                          <path d="M7 17L17 7M17 7H7M17 7v10" />
+                        </svg>
+                      </a>
+                    ))}
+                  </div>
+                </ParallaxLayer>
+              </div>
+            </ParallaxLayer>
+          );
+
+          if (tiltMode === "parallax") {
+            return <ParallaxCard enabled={tiltEnabled} maxTilt={10} perspective={1000}>{card}</ParallaxCard>;
+          }
+          if (tiltMode === "tilt") {
+            return <TiltCard enabled={tiltEnabled} maxTilt={12} perspective={1000} scale={1.015}>{card}</TiltCard>;
+          }
+          return card;
+        })()}
       </div>
     </div>
   );

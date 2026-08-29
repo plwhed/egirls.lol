@@ -9,7 +9,7 @@ const layouts = [
     preview: (
       <div className="flex h-full items-center justify-center">
         <div className="w-2/3 space-y-2">
-          <div className="mx-auto h-6 w-6 rounded-full bg-emerald-400/40" />
+          <div className="mx-auto h-3 w-6 rounded-full bg-emerald-400/40" />
           <div className="mx-auto h-2.5 w-16 rounded-full bg-white/20" />
           <div className="mt-4 space-y-1.5">
             <div className="h-4 rounded bg-white/10" />
@@ -40,18 +40,30 @@ const layouts = [
 export default function LayoutTab({
   initialLayout,
   initialBlur,
-  initialOverlayEnabled,
-  initialOverlayText,
+  initialTiltEnabled,
+  initialTiltMode,
+  initialBorderRadius,
+  initialCardWidth,
+  initialCardOpacity,
+  initialBorderOpacity,
 }: {
   initialLayout: string;
   initialBlur: number;
-  initialOverlayEnabled: boolean;
-  initialOverlayText: string;
+  initialTiltEnabled: boolean;
+  initialTiltMode: string;
+  initialBorderRadius: number;
+  initialCardWidth: number;
+  initialCardOpacity: number;
+  initialBorderOpacity: number;
 }) {
   const [selected, setSelected] = useState(initialLayout);
   const [blur, setBlur] = useState(initialBlur);
-  const [overlayEnabled, setOverlayEnabled] = useState(initialOverlayEnabled);
-  const [overlayText, setOverlayText] = useState(initialOverlayText);
+  const [tiltEnabled, setTiltEnabled] = useState(initialTiltEnabled);
+  const [tiltMode, setTiltMode] = useState(initialTiltMode);
+  const [borderRadius, setBorderRadius] = useState(initialBorderRadius);
+  const [cardWidth, setCardWidth] = useState(initialCardWidth);
+  const [cardOpacity, setCardOpacity] = useState(initialCardOpacity);
+  const [borderOpacity, setBorderOpacity] = useState(initialBorderOpacity);
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -63,13 +75,22 @@ export default function LayoutTab({
       body: JSON.stringify({
         layout: selected,
         blur,
-        overlayEnabled,
-        overlayText,
+        tiltEnabled,
+        tiltMode,
+        borderRadius,
+        cardWidth,
+        cardOpacity,
+        borderOpacity,
       }),
     });
     setSaving(false);
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
+  }
+
+  function setFullTransparent() {
+    setCardOpacity(0);
+    setBorderOpacity(0);
   }
 
   return (
@@ -99,6 +120,124 @@ export default function LayoutTab({
         </div>
       </div>
 
+      {/* 3D Card Tilt Mode */}
+      <div>
+        <p className="mb-3 text-sm font-medium text-white/70">3D card effect</p>
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            { id: "none", label: "None", desc: "Flat card" },
+            { id: "tilt", label: "Tilt", desc: "Card rotates on hover" },
+            { id: "parallax", label: "Parallax", desc: "Layers move with mouse" },
+          ].map((m) => (
+            <button
+              key={m.id}
+              onClick={() => {
+                setTiltMode(m.id);
+                setTiltEnabled(m.id !== "none");
+              }}
+              className={`rounded-xl border-2 p-3 transition text-left ${
+                tiltMode === m.id
+                  ? "border-emerald-400 bg-emerald-400/10"
+                  : "border-white/10 bg-white/5 hover:border-white/20"
+              }`}
+            >
+              <p className="font-medium text-white/80">{m.label}</p>
+              <p className="text-xs text-white/40 mt-0.5">{m.desc}</p>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Card width */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-sm font-medium text-white/70">Card width</p>
+          <span className="text-xs text-white/40">{cardWidth}px</span>
+        </div>
+        <input
+          type="range"
+          min={300}
+          max={800}
+          step={20}
+          value={cardWidth}
+          onChange={(e) => setCardWidth(Number(e.target.value))}
+          className="w-full accent-emerald-400"
+        />
+        <div className="flex justify-between text-[10px] text-white/30 mt-1">
+          <span>Narrow</span>
+          <span>Wide</span>
+        </div>
+      </div>
+
+      {/* Card opacity */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-sm font-medium text-white/70">Card background opacity</p>
+          <span className="text-xs text-white/40">{cardOpacity}%</span>
+        </div>
+        <div className="flex items-center gap-3">
+          <input
+            type="range"
+            min={0}
+            max={100}
+            value={cardOpacity}
+            onChange={(e) => setCardOpacity(Number(e.target.value))}
+            className="flex-1 accent-emerald-400"
+          />
+          <button
+            type="button"
+            onClick={setFullTransparent}
+            className="px-3 py-1.5 text-xs font-medium text-white/60 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 transition"
+          >
+            Full Transparent
+          </button>
+        </div>
+        <div className="flex justify-between text-[10px] text-white/30 mt-1">
+          <span>Transparent</span>
+          <span>Opaque</span>
+        </div>
+      </div>
+
+      {/* Border opacity */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-sm font-medium text-white/70">Card border opacity</p>
+          <span className="text-xs text-white/40">{borderOpacity}%</span>
+        </div>
+        <input
+          type="range"
+          min={0}
+          max={100}
+          value={borderOpacity}
+          onChange={(e) => setBorderOpacity(Number(e.target.value))}
+          className="w-full accent-emerald-400"
+        />
+        <div className="flex justify-between text-[10px] text-white/30 mt-1">
+          <span>Transparent</span>
+          <span>Opaque</span>
+        </div>
+      </div>
+
+      {/* Border radius */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-sm font-medium text-white/70">Card border radius</p>
+          <span className="text-xs text-white/40">{borderRadius}px</span>
+        </div>
+        <input
+          type="range"
+          min={0}
+          max={50}
+          value={borderRadius}
+          onChange={(e) => setBorderRadius(Number(e.target.value))}
+          className="w-full accent-emerald-400"
+        />
+        <div className="flex justify-between text-[10px] text-white/30 mt-1">
+          <span>Sharp</span>
+          <span>Rounded</span>
+        </div>
+      </div>
+
       {/* Background blur */}
       <div>
         <div className="flex items-center justify-between mb-3">
@@ -117,34 +256,6 @@ export default function LayoutTab({
           <span>None</span>
           <span>Heavy</span>
         </div>
-      </div>
-
-      {/* Click-to-show overlay */}
-      <div>
-        <div className="flex items-center justify-between mb-3">
-          <p className="text-sm font-medium text-white/70">Click-to-show overlay</p>
-          <button
-            onClick={() => setOverlayEnabled(!overlayEnabled)}
-            className={`relative h-6 w-11 rounded-full transition ${
-              overlayEnabled ? "bg-emerald-400" : "bg-white/10"
-            }`}
-          >
-            <span
-              className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
-                overlayEnabled ? "translate-x-[22px]" : "translate-x-0.5"
-              }`}
-            />
-          </button>
-        </div>
-        {overlayEnabled && (
-          <input
-            type="text"
-            value={overlayText}
-            onChange={(e) => setOverlayText(e.target.value)}
-            placeholder="Click to show"
-            className="w-full rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm text-white outline-none transition placeholder:text-white/30 focus:border-emerald-400 focus:ring-4 focus:ring-emerald-400/15"
-          />
-        )}
       </div>
 
       <button

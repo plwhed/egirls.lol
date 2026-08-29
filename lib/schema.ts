@@ -30,6 +30,18 @@ export const profiles = pgTable("profiles", {
   blur: integer("blur").notNull().default(0),
   overlayEnabled: integer("overlay_enabled").notNull().default(0),
   overlayText: text("overlay_text").notNull().default("Click to show"),
+  tiltEnabled: integer("tilt_enabled").notNull().default(0),
+  tiltMode: text("tilt_mode").notNull().default("tilt"),
+  borderRadius: integer("border_radius").notNull().default(24),
+  description: text("description"),
+  displayName: text("display_name"),
+  cardOpacity: integer("card_opacity").notNull().default(100),
+  borderOpacity: integer("border_opacity").notNull().default(100),
+  cardWidth: integer("card_width").notNull().default(420),
+  accentColor: text("accent_color").notNull().default("white"),
+  badgeColor: text("badge_color").notNull().default("white"),
+  socialColor: text("social_color").notNull().default("white"),
+  linkHoverColor: text("link_hover_color").notNull().default("white"),
 });
 
 export const socialLinks = pgTable(

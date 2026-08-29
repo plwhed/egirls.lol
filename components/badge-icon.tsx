@@ -81,11 +81,13 @@ const brandIcons: Record<string, typeof faDiscord> = {
 export default function BadgeIcon({
   prefix,
   name,
+  style,
 }: {
   prefix: string;
   name: string;
+  style?: React.CSSProperties;
 }) {
   const icon = prefix === "brand" ? brandIcons[name] : solidIcons[name];
   if (!icon) return null;
-  return <FontAwesomeIcon icon={icon} className="h-2.5 w-2.5" />;
+  return <FontAwesomeIcon icon={icon} className="h-2 w-2" style={style as any} />;
 }

@@ -48,6 +48,17 @@ export async function PUT(req: Request) {
   if (body.blur !== undefined) profileData.blur = body.blur;
   if (body.overlayEnabled !== undefined) profileData.overlayEnabled = body.overlayEnabled ? 1 : 0;
   if (body.overlayText !== undefined) profileData.overlayText = body.overlayText;
+  if (body.tiltEnabled !== undefined) profileData.tiltEnabled = body.tiltEnabled ? 1 : 0;
+  if (body.tiltMode !== undefined) profileData.tiltMode = body.tiltMode;
+  if (body.borderRadius !== undefined) profileData.borderRadius = body.borderRadius;
+  if (body.cardWidth !== undefined) profileData.cardWidth = body.cardWidth;
+  if (body.accentColor !== undefined) profileData.accentColor = body.accentColor;
+  if (body.badgeColor !== undefined) profileData.badgeColor = body.badgeColor;
+  if (body.socialColor !== undefined) profileData.socialColor = body.socialColor;
+  if (body.linkHoverColor !== undefined) profileData.linkHoverColor = body.linkHoverColor;
+  if (body.cardOpacity !== undefined) profileData.cardOpacity = body.cardOpacity;
+  if (body.borderOpacity !== undefined) profileData.borderOpacity = body.borderOpacity;
+  if (body.description !== undefined) profileData.description = body.description || null;
 
   if (Object.keys(profileData).length) {
     await upsertProfile(session.id, profileData);
