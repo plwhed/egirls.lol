@@ -2,6 +2,8 @@
 
 # egirls.lol
 
+[Discord Server](https://discord.gg/kmvA4BqNJm)
+
 **A link-in-bio platform**
 
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org)
